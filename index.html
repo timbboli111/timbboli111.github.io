@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pram | Developer & Hardware Enthusiast</title>
     
-    <!-- Meta Tags -->
     <meta name="description" content="Pram - Developer, hardware enthusiast, dan digital explorer.">
     <meta property="og:title" content="Pram | Developer & Hardware Enthusiast">
     <meta property="og:description" content="Exploring code, tinkering hardware, & building cool stuff.">
     <meta property="og:type" content="website">
     <meta name="theme-color" content="#0f172a">
     
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -28,27 +25,16 @@
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(30px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        }
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-10px)' } }
                     }
                 }
             }
         }
     </script>
     
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase JS Client SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -66,10 +52,7 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(148, 163, 184, 0.1);
         }
-        .link-card {
-            position: relative;
-            overflow: hidden;
-        }
+        .link-card { position: relative; overflow: hidden; }
         .link-card::before {
             content: '';
             position: absolute;
@@ -92,27 +75,14 @@
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        
-        .delete-btn, .edit-btn {
-            transition: all 0.3s ease;
-        }
-        .delete-btn:hover, .edit-btn:hover {
-            transform: scale(1.1);
-        }
-        .delete-btn:active, .edit-btn:active {
-            transform: scale(0.95);
-        }
-        
-        /* Animasi untuk deskripsi */
-        .description-text {
-            white-space: pre-wrap; /* Biar Enter/spasi kebaca */
-            word-break: break-word;
-        }
+        .delete-btn, .edit-btn { transition: all 0.3s ease; }
+        .delete-btn:hover, .edit-btn:hover { transform: scale(1.1); }
+        .delete-btn:active, .edit-btn:active { transform: scale(0.95); }
+        .description-text { white-space: pre-wrap; word-break: break-word; }
     </style>
 </head>
 <body class="min-h-screen font-sans antialiased selection:bg-indigo-500 selection:text-white">
     
-    <!-- Loading Screen -->
     <div id="loadingScreen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center transition-opacity duration-500">
         <div class="text-center">
             <div class="w-12 h-12 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -120,9 +90,8 @@
         </div>
     </div>
 
-    <!-- Top Right Nav (Login & Upload Button) -->
     <div class="absolute top-4 right-4 z-40 flex items-center gap-3">
-        <div id="adminControls" class="hidden flex items-center gap-2">
+        <div id="adminControls" style="display:none; gap:0.5rem;">
             <button onclick="openUploadModal()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition shadow-lg">
                 <i data-lucide="upload-cloud" class="w-4 h-4"></i> Upload Karya
             </button>
@@ -130,27 +99,25 @@
                 <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
             </button>
         </div>
-        <button onclick="toggleAuthModal()" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-slate-400 hover:text-indigo-400 transition" title="Admin Portal">
+        <button id="shieldBtn" onclick="toggleAuthModal()" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-slate-400 hover:text-indigo-400 transition" title="Admin Portal">
             <i data-lucide="shield" class="w-4 h-4"></i>
         </button>
     </div>
 
-    <!-- Main Container -->
     <div class="relative min-h-screen flex flex-col items-center justify-center px-4 py-12">
-        
-        <!-- Ambient Effects -->
         <div class="fixed inset-0 overflow-hidden pointer-events-none">
             <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[150px] animate-pulse-slow"></div>
             <div class="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[120px] animate-pulse-slow" style="animation-delay: 2s;"></div>
         </div>
 
-        <!-- Header Section -->
         <div class="w-full max-w-2xl mx-auto mb-8 animate-fade-in" style="animation-delay: 0.2s; opacity: 0;">
             <div class="text-center">
                 <div class="relative inline-block mb-6">
                     <div class="w-28 h-28 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[3px] shadow-2xl animate-float">
                         <div class="w-full h-full bg-slate-900 rounded-2xl flex items-center justify-center overflow-hidden">
-                            <div class="text-5xl">👨‍💻</div>
+                            <img src="assets/avatar.jpg"
+                                alt="Pram"
+                                class="w-full h-full object-cover">
                         </div>
                     </div>
                     <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 rounded-full border-4 border-slate-900 animate-pulse"></div>
@@ -158,9 +125,7 @@
                 
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-3">
                     Halo, Saya 
-                    <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse-slow">
-                        Pram
-                    </span>
+                    <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse-slow">Pram</span>
                 </h1>
                 
                 <p class="text-slate-400 text-base sm:text-lg max-w-md mx-auto leading-relaxed mb-3">
@@ -168,25 +133,22 @@
                 </p>
                 
                 <div class="flex items-center justify-center gap-4 text-sm text-slate-500 mb-6">
-                    <span class="flex items-center gap-1">
-                        <i data-lucide="map-pin" class="w-4 h-4"></i> Indonesia
-                    </span>
+                    <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-4 h-4"></i> Indonesia</span>
                     <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
-                    <span class="flex items-center gap-1">
-                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> Available for collaboration
-                    </span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> Available for collaboration</span>
                 </div>
             </div>
         </div>
 
-        <!-- Links Section -->
         <div class="w-full max-w-xl mx-auto space-y-3 mb-8 animate-fade-in-up" style="animation-delay: 0.4s; opacity: 0;">
             <a href="https://github.com/timbboli111" target="_blank" rel="noopener noreferrer" 
                class="link-card flex items-center justify-between w-full px-6 py-4 rounded-2xl glass-card text-slate-200 font-medium transition-all duration-300 group hover:scale-[1.02] hover:border-indigo-500/50">
                 <span class="flex items-center gap-4">
                     <span class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-indigo-500/10 transition-colors">
-                        <i data-lucide="github" class="w-5 h-5 text-indigo-400 group-hover:text-indigo-300 transition-colors"></i>
-                    </span>
+                        <svg class="w-6 h-6 text-white group-hover:text-indigo-300 transition-colors" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.69-3.87-1.35-3.87-1.35-.53-1.34-1.28-1.7-1.28-1.7-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.47.11-3.06 0 0 .96-.31 3.15 1.18A10.9 10.9 0 0 1 12 5.35c.97 0 1.94.13 2.85.38 2.18-1.49 3.14-1.18 3.14-1.18.62 1.59.23 2.77.11 3.06.73.81 1.18 1.84 1.18 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.07.78 2.16v3.2c0 .31.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
+                        </svg>
+</span>
                     <div class="text-left">
                         <p class="font-semibold text-sm sm:text-base">GitHub Profile</p>
                         <p class="text-xs text-slate-500 group-hover:text-slate-400 transition-colors">Check out my repositories</p>
@@ -195,7 +157,6 @@
                 <i data-lucide="arrow-up-right" class="w-5 h-5 text-slate-600 group-hover:text-indigo-400 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
             </a>
 
-            <!-- Featured Projects / Karya Saya -->
             <div class="glass-card rounded-2xl p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
@@ -209,7 +170,6 @@
             </div>
         </div>
 
-        <!-- Tech Stack -->
         <div class="w-full max-w-xl mx-auto mb-8 animate-fade-in-up" style="animation-delay: 0.6s; opacity: 0;">
             <p class="text-xs text-slate-600 text-center mb-3 uppercase tracking-wider">Tech Stack</p>
             <div class="flex flex-wrap justify-center gap-2">
@@ -224,13 +184,12 @@
         </div>
     </div>
 
-    <!-- MODAL: Login Admin -->
-    <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display:none;">
         <div class="glass-card w-full max-w-md rounded-2xl p-6 relative border border-slate-700">
             <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="lock" class="w-5 h-5 text-indigo-400"></i> Login Admin Pram</h3>
             <p class="text-xs text-slate-400 mb-4">Masuk untuk mengunggah karya baru.</p>
-            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+            <form id="loginForm" onsubmit="return handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Email</label>
                     <input type="email" id="email" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
@@ -239,18 +198,17 @@
                     <label class="block text-xs text-slate-400 mb-1">Password</label>
                     <input type="password" id="password" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-xl text-sm transition">Masuk</button>
+                <button type="submit" id="loginBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-xl text-sm transition">Masuk</button>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: Upload Karya -->
-    <div id="uploadModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="uploadModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display:none;">
         <div class="glass-card w-full max-w-md rounded-2xl p-6 relative border border-slate-700">
             <button onclick="openUploadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="upload" class="w-5 h-5 text-emerald-400"></i> Upload Karya Baru</h3>
             <p class="text-xs text-slate-400 mb-4">Pilih file & tambah deskripsi karya.</p>
-            <form id="uploadForm" onsubmit="handleUpload(event)" class="space-y-4">
+            <form id="uploadForm" onsubmit="return handleUpload(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Judul Karya</label>
                     <input type="text" id="karyaTitle" required placeholder="Contoh: Bot Telegram IoT Golang" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
@@ -268,13 +226,12 @@
         </div>
     </div>
 
-    <!-- MODAL: Edit Deskripsi -->
-    <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display:none;">
         <div class="glass-card w-full max-w-md rounded-2xl p-6 relative border border-slate-700">
             <button onclick="closeEditModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-amber-400"></i> Edit Deskripsi</h3>
             <p class="text-xs text-slate-400 mb-4">Update deskripsi karya kamu.</p>
-            <form id="editForm" onsubmit="handleUpdateDescription(event)" class="space-y-4">
+            <form id="editForm" onsubmit="return handleUpdateDescription(event)" class="space-y-4">
                 <input type="hidden" id="editKaryaId">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Judul</label>
@@ -290,8 +247,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Konfirmasi Delete -->
-    <div id="deleteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="deleteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display:none;">
         <div class="glass-card w-full max-w-sm rounded-2xl p-6 relative border border-slate-700 text-center">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-rose-600/20 flex items-center justify-center">
                 <i data-lucide="alert-triangle" class="w-8 h-8 text-rose-400"></i>
@@ -305,7 +261,6 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-700 text-slate-200 px-6 py-3 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50">
         <p class="text-sm flex items-center gap-2">
             <i data-lucide="info" class="w-4 h-4 text-indigo-400"></i>
@@ -313,294 +268,389 @@
         </p>
     </div>
 
-    <!-- Script -->
     <script>
+        // ==================== KONFIGURASI ====================
         const SUPABASE_URL = 'https://ergniszhpscoqvtckxbi.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_pVPLsfloW-cs11AdLRA6UQ_Cc7ZnZEV'; 
+        const SUPABASE_ANON_KEY = 'sb_publishable_pVPLsfloW-cs11AdLRA6UQ_Cc7ZnZEV';
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        
         let deleteTargetId = null;
         let deleteTargetFileName = null;
-
+        let isProcessing = false;
+        let isAdmin = false;
+        
         lucide.createIcons();
 
+        // Nampilin/nyembunyiin tombol shield + adminControls bareng-bareng
+        // berdasarkan status login. Sebelumnya tombol shield ini di luar
+        // #adminControls jadi ga ikut kesembunyiin walau udah login.
+        function updateAuthUI() {
+            document.getElementById('adminControls').style.display = isAdmin ? 'flex' : 'none';
+            document.getElementById('shieldBtn').style.display = isAdmin ? 'none' : 'flex';
+        }
+
+        // ==================== ON LOAD ====================
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('loadingScreen').style.opacity = '0';
                 setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 500);
                 document.querySelectorAll('.animate-fade-in, .animate-fade-in-up').forEach(el => el.style.opacity = '1');
             }, 1000);
-            checkUserSession();
-            fetchKarya();
+            
+            // Cek apakah baru login (setelah reload)
+            if (sessionStorage.getItem('justLoggedIn') === 'true') {
+                sessionStorage.removeItem('justLoggedIn');
+                setTimeout(() => showToast('Login berhasil! 🎉', false), 1500);
+            }
+            
+            // Cek apakah baru upload (setelah reload)
+            if (sessionStorage.getItem('justUploaded') === 'true') {
+                sessionStorage.removeItem('justUploaded');
+                setTimeout(() => showToast('Upload berhasil! 🎉', false), 1500);
+            }
+            
+            // Cek apakah baru edit (setelah reload)
+            if (sessionStorage.getItem('justEdited') === 'true') {
+                sessionStorage.removeItem('justEdited');
+                setTimeout(() => showToast('Deskripsi diupdate! ✨', false), 1500);
+            }
+            
+            // Cek apakah baru delete (setelah reload)
+            if (sessionStorage.getItem('justDeleted') === 'true') {
+                sessionStorage.removeItem('justDeleted');
+                setTimeout(() => showToast('Berhasil dihapus! 🗑️', false), 1500);
+            }
+            
+            checkSessionAndRender();
         });
 
-        function showToast(msg, isError = false) {
+        // ==================== AUTH STATE - BODO & CEPAT ====================
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            console.log('AUTH EVENT:', event, !!session);
+            isAdmin = !!session;
+            updateAuthUI();
+        });
+
+        // ==================== UI HELPERS ====================
+        function showToast(msg, isError) {
             const toast = document.getElementById('toast');
             const icon = toast.querySelector('i');
             document.getElementById('toastMessage').textContent = msg;
-            
-            if (isError) {
-                icon.className = 'w-4 h-4 text-rose-400';
-                icon.setAttribute('data-lucide', 'x-circle');
-            } else {
-                icon.className = 'w-4 h-4 text-indigo-400';
-                icon.setAttribute('data-lucide', 'info');
-            }
+            icon.setAttribute('data-lucide', isError ? 'x-circle' : 'check-circle');
+            icon.className = 'w-4 h-4 ' + (isError ? 'text-rose-400' : 'text-emerald-400');
             lucide.createIcons();
-            
             toast.style.transform = 'translateY(0)';
             toast.style.opacity = '1';
-            setTimeout(() => {
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
                 toast.style.transform = 'translateY(20px)';
                 toast.style.opacity = '0';
             }, 3000);
         }
 
+        function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ==================== MODAL CONTROLS ====================
         function toggleAuthModal() {
-            document.getElementById('authModal').classList.toggle('hidden');
+            const m = document.getElementById('authModal');
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
         }
-
         function openUploadModal() {
-            document.getElementById('uploadModal').classList.toggle('hidden');
+            const m = document.getElementById('uploadModal');
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
         }
-
         function openDeleteModal(id, fileName) {
             deleteTargetId = id;
             deleteTargetFileName = fileName;
-            document.getElementById('deleteModal').classList.remove('hidden');
+            showModal('deleteModal');
         }
-
         function closeDeleteModal() {
             deleteTargetId = null;
             deleteTargetFileName = null;
-            document.getElementById('deleteModal').classList.add('hidden');
+            hideModal('deleteModal');
         }
-
         function openEditModal(id, title, description) {
             document.getElementById('editKaryaId').value = id;
             document.getElementById('editKaryaTitle').value = title;
             document.getElementById('editKaryaDescription').value = description || '';
-            document.getElementById('editModal').classList.remove('hidden');
+            showModal('editModal');
         }
+        function closeEditModal() { hideModal('editModal'); }
 
-        function closeEditModal() {
-            document.getElementById('editModal').classList.add('hidden');
-            document.getElementById('editForm').reset();
-        }
-
-        async function checkUserSession() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                document.getElementById('adminControls').classList.remove('hidden');
-                fetchKarya();
-            } else {
-                document.getElementById('adminControls').classList.add('hidden');
-                fetchKarya();
-            }
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) {
-                showToast('Login Gagal: ' + error.message, true);
-            } else {
-                showToast('Login Berhasil! Selamat datang Admin.');
-                toggleAuthModal();
-                checkUserSession();
-            }
-        }
-
-        async function handleLogout() {
-            await supabaseClient.auth.signOut();
-            showToast('Berhasil keluar.');
-            checkUserSession();
-        }
-
-        // Fungsi untuk update deskripsi
-        async function handleUpdateDescription(e) {
-            e.preventDefault();
-            const id = document.getElementById('editKaryaId').value;
-            const description = document.getElementById('editKaryaDescription').value;
-            const btn = document.getElementById('updateBtn');
-
-            btn.textContent = 'Menyimpan...';
-            btn.disabled = true;
-
-            const { error } = await supabaseClient
-                .from('karya')
-                .update({ description: description })
-                .eq('id', id);
-
-            if (error) {
-                showToast('Gagal update deskripsi: ' + error.message, true);
-            } else {
-                showToast('Deskripsi berhasil diupdate! ✏️');
-                closeEditModal();
-                fetchKarya();
-            }
-
-            btn.textContent = 'Simpan Perubahan';
-            btn.disabled = false;
-        }
-
-        async function fetchKarya() {
+        // ==================== RENDER KARYA ====================
+        function renderKarya(data) {
             const container = document.getElementById('karyaList');
-            const { data, error } = await supabaseClient.from('karya').select('*').order('created_at', { ascending: false });
-
-            if (error) {
-                container.innerHTML = `<p class="text-xs text-rose-400 text-center py-2">Gagal memuat data.</p>`;
-                return;
-            }
-
             if (!data || data.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Belum ada karya yang di-upload.</p>`;
+                container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Belum ada karya.</p>';
                 return;
             }
 
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            const isAdmin = !!session;
-
-            function extractFileName(url) {
-                try {
-                    const urlObj = new URL(url);
-                    const pathParts = urlObj.pathname.split('/');
-                    return pathParts[pathParts.length - 1];
-                } catch (e) {
-                    return '';
-                }
-            }
-
-            container.innerHTML = data.map(item => {
-                const fileName = extractFileName(item.file_url);
+            let html = '';
+            data.forEach(item => {
+                const urlParts = item.file_url.split('/');
+                const fileName = urlParts[urlParts.length - 1].split('?')[0];
                 const hasDescription = item.description && item.description.trim() !== '';
+                const safeTitle = escapeHTML(item.title);
+                const safeDesc = escapeHTML(item.description || '');
                 
-                return `
+                html += `
                 <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-indigo-500/30 transition group">
-                    <!-- Header: Judul & Tombol Aksi -->
                     <div class="flex items-start justify-between gap-2 mb-2">
-                        <h4 class="text-sm font-semibold text-slate-200 break-words flex-1">${item.title}</h4>
+                        <h4 class="text-sm font-semibold text-slate-200 break-words flex-1">${safeTitle}</h4>
+                        ${isAdmin ? `
                         <div class="flex items-center gap-1 shrink-0">
-                            ${isAdmin ? `
-                            <button onclick="openEditModal(${item.id}, '${item.title.replace(/'/g, "\\'")}', '${(item.description || '').replace(/'/g, "\\'").replace(/\n/g, '\\n')}')" 
+                            <button onclick="event.stopPropagation(); openEditModal(${item.id}, '${safeTitle.replace(/'/g, "\\'")}', '${safeDesc.replace(/'/g, "\\'").replace(/\n/g, '\\n')}')" 
                                     class="edit-btn w-7 h-7 rounded-lg bg-amber-600/20 hover:bg-amber-600/60 text-amber-400 hover:text-amber-200 transition opacity-0 group-hover:opacity-100 flex items-center justify-center" 
                                     title="Edit deskripsi">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                             </button>
-                            <button onclick="openDeleteModal(${item.id}, '${fileName}')" 
+                            <button onclick="event.stopPropagation(); openDeleteModal(${item.id}, '${escapeHTML(fileName)}')" 
                                     class="delete-btn w-7 h-7 rounded-lg bg-rose-600/20 hover:bg-rose-600/60 text-rose-400 hover:text-rose-200 transition opacity-0 group-hover:opacity-100 flex items-center justify-center" 
                                     title="Hapus karya">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                             </button>
-                            ` : ''}
                         </div>
+                        ` : ''}
                     </div>
                     
-                    <!-- Deskripsi -->
                     ${hasDescription ? `
                     <div class="mb-3">
-                        <p class="text-xs text-slate-400 description-text leading-relaxed">${item.description}</p>
+                        <p class="text-xs text-slate-400 description-text leading-relaxed">${safeDesc}</p>
                     </div>
                     ` : (isAdmin ? `
                     <div class="mb-3">
-                        <p class="text-xs text-slate-600 italic">Belum ada deskripsi. <span class="text-amber-400 cursor-pointer hover:underline" onclick="openEditModal(${item.id}, '${item.title.replace(/'/g, "\\'")}', '')">Tambah sekarang</span></p>
+                        <p class="text-xs text-slate-600 italic">Belum ada deskripsi. <span class="text-amber-400 cursor-pointer hover:underline" onclick="event.stopPropagation(); openEditModal(${item.id}, '${safeTitle.replace(/'/g, "\\'")}', '')">Tambah sekarang</span></p>
                     </div>
                     ` : '')}
                     
-                    <!-- Tombol Download -->
                     <a href="${item.file_url}" target="_blank" download 
                        class="inline-flex items-center gap-1.5 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
                     </a>
                 </div>
                 `;
-            }).join('');
+            });
+            
+            container.innerHTML = html;
             lucide.createIcons();
         }
 
-        async function deleteKarya() {
-            if (!deleteTargetId || !deleteTargetFileName) return;
-
-            const confirmBtn = document.getElementById('confirmDeleteBtn');
-            confirmBtn.textContent = 'Menghapus...';
-            confirmBtn.disabled = true;
-
+        async function fetchKarya() {
+            const container = document.getElementById('karyaList');
+            container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Memuat...</p>';
+            
             try {
-                const { error: storageError } = await supabaseClient.storage
-                    .from('karya-pram')
-                    .remove([deleteTargetFileName]);
-
-                if (storageError) console.error('Storage delete error:', storageError);
-
-                const { error: dbError } = await supabaseClient
+                const { data, error } = await supabaseClient
                     .from('karya')
-                    .delete()
-                    .eq('id', deleteTargetId);
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-                if (dbError) throw new Error('Gagal hapus dari database: ' + dbError.message);
-
-                showToast('Karya berhasil dihapus! 🗑️');
-                closeDeleteModal();
-                fetchKarya();
-            } catch (error) {
-                showToast('Gagal menghapus: ' + error.message, true);
-                closeDeleteModal();
-            } finally {
-                confirmBtn.textContent = 'Hapus';
-                confirmBtn.disabled = false;
+                if (error) { container.innerHTML = '<p class="text-xs text-rose-400 text-center py-2">Gagal memuat</p>'; return; }
+                renderKarya(data);
+            } catch (err) {
+                container.innerHTML = '<p class="text-xs text-rose-400 text-center py-2">Error</p>';
             }
         }
 
-        document.getElementById('confirmDeleteBtn').addEventListener('click', deleteKarya);
+        async function checkSessionAndRender() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            isAdmin = !!session;
+            updateAuthUI();
+            await fetchKarya();
+        }
+
+        // ==================== AUTH ====================
+        async function handleLogin(e) {
+            e.preventDefault();
+            if (isProcessing) return false;
+            isProcessing = true;
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+            
+            btn.textContent = 'Memproses...';
+            btn.disabled = true;
+
+            try {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+                if (error) {
+                    showToast('Login gagal: ' + error.message, true);
+                    btn.textContent = 'Masuk';
+                    btn.disabled = false;
+                    isProcessing = false;
+                    return false;
+                }
+
+                // ⚡ EKSTRIM: Simpan state & reload halaman
+                sessionStorage.setItem('justLoggedIn', 'true');
+                window.location.reload();
+                
+                return false;
+            } catch (err) {
+                showToast('Error: ' + err.message, true);
+                btn.textContent = 'Masuk';
+                btn.disabled = false;
+                isProcessing = false;
+            }
+            
+            return false;
+        }
+
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            sessionStorage.removeItem('justLoggedIn');
+            window.location.reload();
+        }
+
+        // ==================== CRUD ====================
+        async function handleUpdateDescription(e) {
+            e.preventDefault();
+            if (isProcessing) return false;
+            isProcessing = true;
+            
+            const id = document.getElementById('editKaryaId').value;
+            const description = document.getElementById('editKaryaDescription').value;
+            const btn = document.getElementById('updateBtn');
+            
+            btn.textContent = 'Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('karya')
+                    .update({ description: description })
+                    .eq('id', id);
+
+                if (error) {
+                    showToast('Gagal: ' + error.message, true);
+                    btn.textContent = 'Simpan Perubahan';
+                    btn.disabled = false;
+                    isProcessing = false;
+                    return false;
+                }
+
+                // ⚡ EKSTRIM: Simpan state & reload
+                sessionStorage.setItem('justEdited', 'true');
+                window.location.reload();
+                
+                return false;
+            } catch (err) {
+                showToast('Error: ' + err.message, true);
+                btn.textContent = 'Simpan Perubahan';
+                btn.disabled = false;
+                isProcessing = false;
+            }
+            
+            return false;
+        }
+
+        async function deleteKarya() {
+            if (!deleteTargetId || !deleteTargetFileName || isProcessing) return;
+            isProcessing = true;
+            
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.textContent = 'Menghapus...';
+            btn.disabled = true;
+
+            try {
+                await supabaseClient.storage.from('karya-pram').remove([deleteTargetFileName]);
+                const { error: dbError } = await supabaseClient.from('karya').delete().eq('id', deleteTargetId);
+                if (dbError) throw dbError;
+
+                // ⚡ EKSTRIM: Simpan state & reload
+                sessionStorage.setItem('justDeleted', 'true');
+                window.location.reload();
+            } catch (err) {
+                showToast('Gagal: ' + err.message, true);
+                btn.textContent = 'Hapus';
+                btn.disabled = false;
+                isProcessing = false;
+            }
+        }
 
         async function handleUpload(e) {
             e.preventDefault();
-            const title = document.getElementById('karyaTitle').value;
-            const description = document.getElementById('karyaDescription').value;
+            if (isProcessing) return false;
+            
+            const title = document.getElementById('karyaTitle').value.trim();
+            const description = document.getElementById('karyaDescription').value.trim();
             const fileInput = document.getElementById('karyaFile');
             const file = fileInput.files[0];
             const btn = document.getElementById('uploadBtn');
 
-            if (!file) return;
+            if (!file) { showToast('Pilih file dulu!', true); return false; }
+            if (!title) { showToast('Isi judul dulu!', true); return false; }
 
+            isProcessing = true;
             btn.textContent = 'Mengunggah...';
             btn.disabled = true;
 
-            const fileName = `${Date.now()}_${file.name}`;
-            
-            const { error: uploadError } = await supabaseClient.storage.from('karya-pram').upload(fileName, file);
+            try {
+                const fileName = `${Date.now()}_${file.name}`;
+                
+                const { error: uploadError } = await supabaseClient.storage
+                    .from('karya-pram')
+                    .upload(fileName, file);
 
-            if (uploadError) {
-                showToast('Upload File Gagal: ' + uploadError.message, true);
+                if (uploadError) {
+                    showToast('Upload gagal: ' + uploadError.message, true);
+                    btn.textContent = 'Upload Sekarang';
+                    btn.disabled = false;
+                    isProcessing = false;
+                    return false;
+                }
+
+                const { data: { publicUrl } } = supabaseClient.storage
+                    .from('karya-pram')
+                    .getPublicUrl(fileName);
+
+                const { error: dbError } = await supabaseClient
+                    .from('karya')
+                    .insert([{ title, description, file_url: publicUrl }]);
+
+                if (dbError) {
+                    showToast('Gagal simpan: ' + dbError.message, true);
+                    btn.textContent = 'Upload Sekarang';
+                    btn.disabled = false;
+                    isProcessing = false;
+                    return false;
+                }
+
+                // ⚡ EKSTRIM: Simpan state & reload
+                sessionStorage.setItem('justUploaded', 'true');
+                window.location.reload();
+                
+                return false;
+            } catch (err) {
+                showToast('Error: ' + err.message, true);
                 btn.textContent = 'Upload Sekarang';
                 btn.disabled = false;
-                return;
+                isProcessing = false;
             }
-
-            const { data: { publicUrl } } = supabaseClient.storage.from('karya-pram').getPublicUrl(fileName);
-
-            const { error: dbError } = await supabaseClient.from('karya').insert([{ 
-                title: title, 
-                description: description,
-                file_url: publicUrl 
-            }]);
-
-            if (dbError) {
-                showToast('Gagal simpan ke Database: ' + dbError.message, true);
-            } else {
-                showToast('Karya berhasil di-upload! 🎉');
-                openUploadModal();
-                document.getElementById('uploadForm').reset();
-                fetchKarya();
-            }
-
-            btn.textContent = 'Upload Sekarang';
-            btn.disabled = false;
+            
+            return false;
         }
+
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('confirmDeleteBtn').addEventListener('click', deleteKarya);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDeleteModal();
+                closeEditModal();
+            }
+        });
     </script>
 </body>
-  </html>
+</html>
