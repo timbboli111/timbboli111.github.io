@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pram | Developer & Hardware Enthusiast</title>
-    
+
     <meta name="description" content="Pram - Developer, hardware enthusiast, dan digital explorer.">
     <meta property="og:title" content="Pram | Developer & Hardware Enthusiast">
     <meta property="og:description" content="Exploring code, tinkering hardware, & building cool stuff.">
     <meta property="og:type" content="website">
     <meta name="theme-color" content="#0f172a">
-    
+
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -33,24 +33,35 @@
             }
         }
     </script>
-    
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+
     <style>
         * { scroll-behavior: smooth; }
         body {
             background-color: #0f172a;
             color: #f8fafc;
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 50% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            background-image:
+                radial-gradient(circle at 18% 18%, rgba(99, 102, 241, 0.14) 0%, transparent 34%),
+                radial-gradient(circle at 82% 12%, rgba(236, 72, 153, 0.10) 0%, transparent 32%),
+                radial-gradient(circle at 50% 88%, rgba(59, 130, 246, 0.08) 0%, transparent 42%),
+                linear-gradient(180deg, #111827 0%, #0f172a 45%, #020617 100%);
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 56px 56px;
+            mask-image: radial-gradient(circle at center, black, transparent 76%);
         }
         .glass-card {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(148, 163, 184, 0.1);
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.86), rgba(30, 41, 59, 0.58));
+            backdrop-filter: blur(22px);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            box-shadow: 0 24px 80px rgba(2, 6, 23, 0.32);
         }
         .link-card { position: relative; overflow: hidden; }
         .link-card::before {
@@ -79,10 +90,14 @@
         .delete-btn:hover, .edit-btn:hover { transform: scale(1.1); }
         .delete-btn:active, .edit-btn:active { transform: scale(0.95); }
         .description-text { white-space: pre-wrap; word-break: break-word; }
+        .project-card { box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
+        .project-card:hover { transform: translateY(-2px); box-shadow: 0 18px 42px rgba(15, 23, 42, 0.34), inset 0 1px 0 rgba(255,255,255,0.06); }
+        .premium-button { box-shadow: 0 10px 26px rgba(79, 70, 229, 0.22); }
+        .modal-panel { box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48); }
     </style>
 </head>
 <body class="min-h-screen font-sans antialiased selection:bg-indigo-500 selection:text-white">
-    
+
     <div id="loadingScreen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center transition-opacity duration-500">
         <div class="text-center">
             <div class="w-12 h-12 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -99,7 +114,7 @@
                 <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
             </button>
         </div>
-        <button id="shieldBtn" onclick="toggleAuthModal()" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-slate-400 hover:text-indigo-400 transition" title="Admin Portal">
+        <button id="shieldBtn" onclick="toggleAuthModal()" class="w-10 h-10 rounded-2xl glass-card flex items-center justify-center text-slate-400 hover:text-indigo-300 hover:border-indigo-400/40 transition premium-button" title="Admin Portal">
             <i data-lucide="shield" class="w-4 h-4"></i>
         </button>
     </div>
@@ -122,16 +137,16 @@
                     </div>
                     <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 rounded-full border-4 border-slate-900 animate-pulse"></div>
                 </div>
-                
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-3">
-                    Halo, Saya 
+
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-3 drop-shadow-2xl">
+                    Halo, Saya
                     <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse-slow">Pram</span>
                 </h1>
-                
+
                 <p class="text-slate-400 text-base sm:text-lg max-w-md mx-auto leading-relaxed mb-3">
                     Developer • Hardware Enthusiast • Digital Explorer
                 </p>
-                
+
                 <div class="flex items-center justify-center gap-4 text-sm text-slate-500 mb-6">
                     <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-4 h-4"></i> Indonesia</span>
                     <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
@@ -141,7 +156,7 @@
         </div>
 
         <div class="w-full max-w-xl mx-auto space-y-3 mb-8 animate-fade-in-up" style="animation-delay: 0.4s; opacity: 0;">
-            <a href="https://github.com/timbboli111" target="_blank" rel="noopener noreferrer" 
+            <a href="https://github.com/timbboli111" target="_blank" rel="noopener noreferrer"
                class="link-card flex items-center justify-between w-full px-6 py-4 rounded-2xl glass-card text-slate-200 font-medium transition-all duration-300 group hover:scale-[1.02] hover:border-indigo-500/50">
                 <span class="flex items-center gap-4">
                     <span class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-indigo-500/10 transition-colors">
@@ -157,7 +172,7 @@
                 <i data-lucide="arrow-up-right" class="w-5 h-5 text-slate-600 group-hover:text-indigo-400 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
             </a>
 
-            <div class="glass-card rounded-2xl p-6">
+            <div class="glass-card rounded-3xl p-6 sm:p-7">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
                         <i data-lucide="folder-git-2" class="w-4 h-4"></i> Karya & Project Saya
@@ -185,7 +200,7 @@
     </div>
 
     <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display:none;">
-        <div class="glass-card w-full max-w-md rounded-2xl p-6 relative border border-slate-700">
+        <div class="glass-card modal-panel w-full max-w-md rounded-2xl p-6 relative border border-slate-700">
             <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="lock" class="w-5 h-5 text-indigo-400"></i> Login Admin Pram</h3>
             <p class="text-xs text-slate-400 mb-4">Masuk untuk mengunggah karya baru.</p>
@@ -204,7 +219,7 @@
     </div>
 
     <div id="uploadModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display:none;">
-        <div class="glass-card w-full max-w-md rounded-2xl p-6 relative border border-slate-700">
+        <div class="glass-card modal-panel w-full max-w-md rounded-2xl p-6 relative border border-slate-700">
             <button onclick="openUploadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="upload" class="w-5 h-5 text-emerald-400"></i> Upload Karya Baru</h3>
             <p class="text-xs text-slate-400 mb-4">Pilih file & tambah deskripsi karya.</p>
@@ -227,7 +242,7 @@
     </div>
 
     <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display:none;">
-        <div class="glass-card w-full max-w-md rounded-2xl p-6 relative border border-slate-700">
+        <div class="glass-card modal-panel w-full max-w-md rounded-2xl p-6 relative border border-slate-700">
             <button onclick="closeEditModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-amber-400"></i> Edit Deskripsi</h3>
             <p class="text-xs text-slate-400 mb-4">Update deskripsi karya kamu.</p>
@@ -248,7 +263,7 @@
     </div>
 
     <div id="deleteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display:none;">
-        <div class="glass-card w-full max-w-sm rounded-2xl p-6 relative border border-slate-700 text-center">
+        <div class="glass-card modal-panel w-full max-w-sm rounded-2xl p-6 relative border border-slate-700 text-center">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-rose-600/20 flex items-center justify-center">
                 <i data-lucide="alert-triangle" class="w-8 h-8 text-rose-400"></i>
             </div>
@@ -261,7 +276,7 @@
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-700 text-slate-200 px-6 py-3 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/95 backdrop-blur-xl border border-slate-700 text-slate-200 px-6 py-3 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-[60]">
         <p class="text-sm flex items-center gap-2">
             <i data-lucide="info" class="w-4 h-4 text-indigo-400"></i>
             <span id="toastMessage">Pesan sistem</span>
@@ -272,14 +287,14 @@
         // ==================== KONFIGURASI ====================
         const SUPABASE_URL = 'https://ergniszhpscoqvtckxbi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_pVPLsfloW-cs11AdLRA6UQ_Cc7ZnZEV';
-        
+
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
+
         let deleteTargetId = null;
         let deleteTargetFileName = null;
         let isProcessing = false;
         let isAdmin = false;
-        
+
         lucide.createIcons();
 
         // Nampilin/nyembunyiin tombol shield + adminControls bareng-bareng
@@ -297,31 +312,39 @@
                 setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 500);
                 document.querySelectorAll('.animate-fade-in, .animate-fade-in-up').forEach(el => el.style.opacity = '1');
             }, 1000);
-            
+
             // Cek apakah baru login (setelah reload)
             if (sessionStorage.getItem('justLoggedIn') === 'true') {
                 sessionStorage.removeItem('justLoggedIn');
                 setTimeout(() => showToast('Login berhasil! 🎉', false), 1500);
             }
-            
+
+            // Cek apakah login baru gagal (setelah reload)
+            if (sessionStorage.getItem('loginFailed') === 'true') {
+                const safeMessage = sessionStorage.getItem('loginFailedMessage') || 'Email atau password salah.';
+                sessionStorage.removeItem('loginFailed');
+                sessionStorage.removeItem('loginFailedMessage');
+                setTimeout(() => showToast(`Login gagal: ${safeMessage}`, true), 1500);
+            }
+
             // Cek apakah baru upload (setelah reload)
             if (sessionStorage.getItem('justUploaded') === 'true') {
                 sessionStorage.removeItem('justUploaded');
                 setTimeout(() => showToast('Upload berhasil! 🎉', false), 1500);
             }
-            
+
             // Cek apakah baru edit (setelah reload)
             if (sessionStorage.getItem('justEdited') === 'true') {
                 sessionStorage.removeItem('justEdited');
                 setTimeout(() => showToast('Deskripsi diupdate! ✨', false), 1500);
             }
-            
+
             // Cek apakah baru delete (setelah reload)
             if (sessionStorage.getItem('justDeleted') === 'true') {
                 sessionStorage.removeItem('justDeleted');
                 setTimeout(() => showToast('Berhasil dihapus! 🗑️', false), 1500);
             }
-            
+
             checkSessionAndRender();
         });
 
@@ -349,14 +372,49 @@
             }, 3000);
         }
 
-        function showModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+        function showModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.style.display = 'flex';
+        }
+        function hideModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.style.display = 'none';
+        }
 
         function escapeHTML(str) {
             if (!str) return '';
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
+        }
+
+        function escapeAttribute(str) {
+            return escapeHTML(str).replace(/'/g, '&#39;').replace(/`/g, '&#96;');
+        }
+
+        function getSafeFileUrl(url) {
+            try {
+                const parsedUrl = new URL(url, window.location.href);
+                return ['http:', 'https:'].includes(parsedUrl.protocol) ? parsedUrl.href : '#';
+            } catch (err) {
+                return '#';
+            }
+        }
+
+        function getPublicFileName(fileUrl) {
+            try {
+                const parsedUrl = new URL(fileUrl, window.location.href);
+                const parts = parsedUrl.pathname.split('/');
+                return decodeURIComponent(parts[parts.length - 1] || 'file');
+            } catch (err) {
+                return 'file';
+            }
+        }
+
+        function getLoginFailedMessage(error) {
+            if (!navigator.onLine) return 'Koneksi bermasalah. Coba lagi.';
+            if (!error) return 'Email atau password salah.';
+            return 'Email atau password salah.';
         }
 
         // ==================== MODAL CONTROLS ====================
@@ -396,50 +454,54 @@
 
             let html = '';
             data.forEach(item => {
-                const urlParts = item.file_url.split('/');
-                const fileName = urlParts[urlParts.length - 1].split('?')[0];
+                const fileName = getPublicFileName(item.file_url);
+                const safeFileUrl = escapeAttribute(getSafeFileUrl(item.file_url));
                 const hasDescription = item.description && item.description.trim() !== '';
                 const safeTitle = escapeHTML(item.title);
                 const safeDesc = escapeHTML(item.description || '');
-                
+                const safeJsTitle = escapeAttribute(JSON.stringify(item.title || ''));
+                const safeJsDesc = escapeAttribute(JSON.stringify(item.description || ''));
+                const safeJsFileName = escapeAttribute(JSON.stringify(fileName));
+                const safeId = Number(item.id);
+
                 html += `
-                <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-indigo-500/30 transition group">
+                <div class="project-card p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition-all duration-300 group">
                     <div class="flex items-start justify-between gap-2 mb-2">
                         <h4 class="text-sm font-semibold text-slate-200 break-words flex-1">${safeTitle}</h4>
                         ${isAdmin ? `
                         <div class="flex items-center gap-1 shrink-0">
-                            <button onclick="event.stopPropagation(); openEditModal(${item.id}, '${safeTitle.replace(/'/g, "\\'")}', '${safeDesc.replace(/'/g, "\\'").replace(/\n/g, '\\n')}')" 
-                                    class="edit-btn w-7 h-7 rounded-lg bg-amber-600/20 hover:bg-amber-600/60 text-amber-400 hover:text-amber-200 transition opacity-0 group-hover:opacity-100 flex items-center justify-center" 
+                            <button onclick="event.stopPropagation(); openEditModal(${safeId}, ${safeJsTitle}, ${safeJsDesc})"
+                                    class="edit-btn w-7 h-7 rounded-lg bg-amber-600/20 hover:bg-amber-600/60 text-amber-400 hover:text-amber-200 transition opacity-0 group-hover:opacity-100 flex items-center justify-center"
                                     title="Edit deskripsi">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                             </button>
-                            <button onclick="event.stopPropagation(); openDeleteModal(${item.id}, '${escapeHTML(fileName)}')" 
-                                    class="delete-btn w-7 h-7 rounded-lg bg-rose-600/20 hover:bg-rose-600/60 text-rose-400 hover:text-rose-200 transition opacity-0 group-hover:opacity-100 flex items-center justify-center" 
+                            <button onclick="event.stopPropagation(); openDeleteModal(${safeId}, ${safeJsFileName})"
+                                    class="delete-btn w-7 h-7 rounded-lg bg-rose-600/20 hover:bg-rose-600/60 text-rose-400 hover:text-rose-200 transition opacity-0 group-hover:opacity-100 flex items-center justify-center"
                                     title="Hapus karya">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
                         ` : ''}
                     </div>
-                    
+
                     ${hasDescription ? `
                     <div class="mb-3">
                         <p class="text-xs text-slate-400 description-text leading-relaxed">${safeDesc}</p>
                     </div>
                     ` : (isAdmin ? `
                     <div class="mb-3">
-                        <p class="text-xs text-slate-600 italic">Belum ada deskripsi. <span class="text-amber-400 cursor-pointer hover:underline" onclick="event.stopPropagation(); openEditModal(${item.id}, '${safeTitle.replace(/'/g, "\\'")}', '')">Tambah sekarang</span></p>
+                        <p class="text-xs text-slate-600 italic">Belum ada deskripsi. <span class="text-amber-400 cursor-pointer hover:underline" onclick="event.stopPropagation(); openEditModal(${safeId}, ${safeJsTitle}, '')">Tambah sekarang</span></p>
                     </div>
                     ` : '')}
-                    
-                    <a href="${item.file_url}" target="_blank" download 
+
+                    <a href="${safeFileUrl}" target="_blank" rel="noopener noreferrer" download
                        class="inline-flex items-center gap-1.5 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
                     </a>
                 </div>
                 `;
             });
-            
+
             container.innerHTML = html;
             lucide.createIcons();
         }
@@ -447,7 +509,7 @@
         async function fetchKarya() {
             const container = document.getElementById('karyaList');
             container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Memuat...</p>';
-            
+
             try {
                 const { data, error } = await supabaseClient
                     .from('karya')
@@ -473,11 +535,11 @@
             e.preventDefault();
             if (isProcessing) return false;
             isProcessing = true;
-            
+
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const btn = document.getElementById('loginBtn');
-            
+
             btn.textContent = 'Memproses...';
             btn.disabled = true;
 
@@ -485,25 +547,29 @@
                 const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
                 if (error) {
-                    showToast('Login gagal: ' + error.message, true);
+                    sessionStorage.setItem('loginFailed', 'true');
+                    sessionStorage.setItem('loginFailedMessage', getLoginFailedMessage(error));
                     btn.textContent = 'Masuk';
                     btn.disabled = false;
                     isProcessing = false;
+                    window.location.reload();
                     return false;
                 }
 
                 // ⚡ EKSTRIM: Simpan state & reload halaman
                 sessionStorage.setItem('justLoggedIn', 'true');
                 window.location.reload();
-                
+
                 return false;
             } catch (err) {
-                showToast('Error: ' + err.message, true);
+                sessionStorage.setItem('loginFailed', 'true');
+                sessionStorage.setItem('loginFailedMessage', getLoginFailedMessage(err));
                 btn.textContent = 'Masuk';
                 btn.disabled = false;
                 isProcessing = false;
+                window.location.reload();
             }
-            
+
             return false;
         }
 
@@ -518,11 +584,11 @@
             e.preventDefault();
             if (isProcessing) return false;
             isProcessing = true;
-            
+
             const id = document.getElementById('editKaryaId').value;
             const description = document.getElementById('editKaryaDescription').value;
             const btn = document.getElementById('updateBtn');
-            
+
             btn.textContent = 'Menyimpan...';
             btn.disabled = true;
 
@@ -543,7 +609,7 @@
                 // ⚡ EKSTRIM: Simpan state & reload
                 sessionStorage.setItem('justEdited', 'true');
                 window.location.reload();
-                
+
                 return false;
             } catch (err) {
                 showToast('Error: ' + err.message, true);
@@ -551,14 +617,14 @@
                 btn.disabled = false;
                 isProcessing = false;
             }
-            
+
             return false;
         }
 
         async function deleteKarya() {
             if (!deleteTargetId || !deleteTargetFileName || isProcessing) return;
             isProcessing = true;
-            
+
             const btn = document.getElementById('confirmDeleteBtn');
             btn.textContent = 'Menghapus...';
             btn.disabled = true;
@@ -582,7 +648,7 @@
         async function handleUpload(e) {
             e.preventDefault();
             if (isProcessing) return false;
-            
+
             const title = document.getElementById('karyaTitle').value.trim();
             const description = document.getElementById('karyaDescription').value.trim();
             const fileInput = document.getElementById('karyaFile');
@@ -598,7 +664,7 @@
 
             try {
                 const fileName = `${Date.now()}_${file.name}`;
-                
+
                 const { error: uploadError } = await supabaseClient.storage
                     .from('karya-pram')
                     .upload(fileName, file);
@@ -630,7 +696,7 @@
                 // ⚡ EKSTRIM: Simpan state & reload
                 sessionStorage.setItem('justUploaded', 'true');
                 window.location.reload();
-                
+
                 return false;
             } catch (err) {
                 showToast('Error: ' + err.message, true);
@@ -638,7 +704,7 @@
                 btn.disabled = false;
                 isProcessing = false;
             }
-            
+
             return false;
         }
 
@@ -649,6 +715,8 @@
             if (e.key === 'Escape') {
                 closeDeleteModal();
                 closeEditModal();
+                hideModal('authModal');
+                hideModal('uploadModal');
             }
         });
     </script>
