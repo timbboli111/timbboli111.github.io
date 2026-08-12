@@ -111,6 +111,28 @@
         .project-card:hover { transform: translateY(-2px); box-shadow: 0 18px 42px rgba(15, 23, 42, 0.34), inset 0 1px 0 rgba(255,255,255,0.06); }
         .premium-button { box-shadow: 0 10px 26px rgba(79, 70, 229, 0.22); }
         .modal-panel { box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48); }
+        .email-card {
+            transition: all 0.3s ease;
+        }
+        .email-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.5) !important;
+            box-shadow: 0 12px 30px rgba(79, 70, 229, 0.15);
+        }
+        .mail-icon {
+            transition: all 0.3s ease;
+        }
+        .email-card:hover .mail-icon {
+            transform: scale(1.1);
+            color: #a5b4fc !important;
+        }
+        .contact-badge {
+            animation: pulse-subtle 3s ease-in-out infinite;
+        }
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.75; }
+        }
     </style>
 </head>
 <body class="min-h-screen font-sans antialiased selection:bg-indigo-500 selection:text-white">
@@ -169,6 +191,26 @@
                     <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-4 h-4"></i> Indonesia</span>
                     <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
                     <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> Available for collaboration</span>
+                </div>
+
+                <!-- Contact Email Card dengan Logo dan Kata-Kata Profesional -->
+                <div class="mt-4 mb-2 flex justify-center">
+                    <a href="mailto:timbboli111@gmail.com" 
+                       class="email-card inline-flex items-center gap-4 px-6 py-3.5 rounded-2xl border border-slate-700/60 bg-slate-900/40 backdrop-blur-md hover:bg-slate-900/60 transition-all duration-300 group cursor-pointer"
+                       title="Kirim email ke timbboli111@gmail.com">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 flex items-center justify-center overflow-hidden group-hover:border-indigo-400/50 transition-all">
+                                <i data-lucide="mail" class="mail-icon w-6 h-6 text-indigo-300 group-hover:text-indigo-200"></i>
+                            </div>
+                            <span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-400 rounded-full border-2 border-slate-900 animate-pulse contact-badge" title="Online"></span>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-sm font-bold text-slate-100 group-hover:text-white transition-colors">Let's Connect!</p>
+                            <p class="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">timbboli111@gmail.com</p>
+                            <p class="text-[10px] text-indigo-400/80 font-medium uppercase tracking-wider mt-0.5 group-hover:text-indigo-300 transition-colors">Contact Me • Open for Projects</p>
+                        </div>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all ml-2"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -229,6 +271,19 @@
                 <span class="skill-tag px-3 py-1.5 rounded-lg text-xs text-emerald-300 cursor-default">Node.js</span>
                 <span class="skill-tag px-3 py-1.5 rounded-lg text-xs text-rose-300 cursor-default">Arduino</span>
                 <span class="skill-tag px-3 py-1.5 rounded-lg text-xs text-amber-300 cursor-default">IoT</span>
+            </div>
+        </div>
+
+        <!-- Footer dengan Email & Logo Tambahan -->
+        <div class="w-full max-w-xl mx-auto text-center mt-2 animate-fade-in" style="animation-delay: 0.8s; opacity: 0;">
+            <div class="inline-flex items-center gap-2 text-xs text-slate-500">
+                <i data-lucide="copyright" class="w-3 h-3"></i>
+                <span>2024 Pram</span>
+                <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
+                <a href="mailto:timbboli111@gmail.com" class="flex items-center gap-1 hover:text-indigo-400 transition-colors">
+                    <i data-lucide="mail" class="w-3 h-3"></i>
+                    <span>timbboli111@gmail.com</span>
+                </a>
             </div>
         </div>
     </div>
