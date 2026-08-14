@@ -731,29 +731,27 @@
                 const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
                 if (error) {
-                    showToast('Login gagal: ' + error.message, true);
+                    sessionStorage.setItem('loginFailed', 'true');
+                    sessionStorage.setItem('loginFailedMessage', getLoginFailedMessage(error));
                     btn.textContent = 'Masuk';
                     btn.disabled = false;
                     isProcessing = false;
+                    window.location.reload();
                     return false;
                 }
 
-                showToast('Login berhasil! 🎉', false);
-                toggleAuthModal();
-                isAdmin = true;
-                updateAuthUI();
-                await fetchKarya();
-                
-                btn.textContent = 'Masuk';
-                btn.disabled = false;
-                isProcessing = false;
-                
+                // ⚡ EKSTRIM: Simpan state & reload halaman
+                sessionStorage.setItem('justLoggedIn', 'true');
+                window.location.reload();
+
                 return false;
             } catch (err) {
-                showToast('Error: ' + err.message, true);
+                sessionStorage.setItem('loginFailed', 'true');
+                sessionStorage.setItem('loginFailedMessage', getLoginFailedMessage(err));
                 btn.textContent = 'Masuk';
                 btn.disabled = false;
                 isProcessing = false;
+                window.location.reload();
             }
 
             return false;
@@ -761,10 +759,8 @@
 
         async function handleLogout() {
             await supabaseClient.auth.signOut();
-            isAdmin = false;
-            updateAuthUI();
-            await fetchKarya();
-            showToast('Logout berhasil!', false);
+            sessionStorage.removeItem('justLoggedIn');
+            window.location.reload();
         }
 
         // ==================== CRUD ====================
@@ -794,14 +790,10 @@
                     return false;
                 }
 
-                showToast('Deskripsi diupdate! ✨', false);
-                closeEditModal();
-                await fetchKarya();
-                
-                btn.textContent = 'Simpan Perubahan';
-                btn.disabled = false;
-                isProcessing = false;
-                
+                // ⚡ EKSTRIM: Simpan state & reload
+                sessionStorage.setItem('justEdited', 'true');
+                window.location.reload();
+
                 return false;
             } catch (err) {
                 showToast('Error: ' + err.message, true);
@@ -822,30 +814,13 @@
             btn.disabled = true;
 
             try {
-                // Hapus file dari storage
-                const { error: storageError } = await supabaseClient.storage
-                    .from('karya-pram')
-                    .remove([deleteTargetFileName]);
-                
-                if (storageError) {
-                    console.warn('Storage delete warning:', storageError);
-                }
-
-                // Hapus dari database
-                const { error: dbError } = await supabaseClient
-                    .from('karya')
-                    .delete()
-                    .eq('id', deleteTargetId);
-                
+                await supabaseClient.storage.from('karya-pram').remove([deleteTargetFileName]);
+                const { error: dbError } = await supabaseClient.from('karya').delete().eq('id', deleteTargetId);
                 if (dbError) throw dbError;
 
-                showToast('Berhasil dihapus! 🗑️', false);
-                closeDeleteModal();
-                await fetchKarya();
-                
-                btn.textContent = 'Hapus';
-                btn.disabled = false;
-                isProcessing = false;
+                // ⚡ EKSTRIM: Simpan state & reload
+                sessionStorage.setItem('justDeleted', 'true');
+                window.location.reload();
             } catch (err) {
                 showToast('Gagal: ' + err.message, true);
                 btn.textContent = 'Hapus';
@@ -902,15 +877,10 @@
                     return false;
                 }
 
-                showToast('Upload berhasil! 🎉', false);
-                openUploadModal(); // Close modal
-                document.getElementById('uploadForm').reset();
-                await fetchKarya();
-                
-                btn.textContent = 'Upload Sekarang';
-                btn.disabled = false;
-                isProcessing = false;
-                
+                // ⚡ EKSTRIM: Simpan state & reload
+                sessionStorage.setItem('justUploaded', 'true');
+                window.location.reload();
+
                 return false;
             } catch (err) {
                 showToast('Error: ' + err.message, true);
@@ -946,6 +916,38 @@
                 document.querySelectorAll('.animate-fade-in, .animate-fade-in-up').forEach(el => el.style.opacity = '1');
             }, 1000);
 
+            // Cek apakah baru login (setelah reload)
+            if (sessionStorage.getItem('justLoggedIn') === 'true') {
+                sessionStorage.removeItem('justLoggedIn');
+                setTimeout(() => showToast('Login berhasil! 🎉', false), 1500);
+            }
+
+            // Cek apakah login baru gagal (setelah reload)
+            if (sessionStorage.getItem('loginFailed') === 'true') {
+                const safeMessage = sessionStorage.getItem('loginFailedMessage') || 'Email atau password salah.';
+                sessionStorage.removeItem('loginFailed');
+                sessionStorage.removeItem('loginFailedMessage');
+                setTimeout(() => showToast(`Login gagal: ${safeMessage}`, true), 1500);
+            }
+
+            // Cek apakah baru upload (setelah reload)
+            if (sessionStorage.getItem('justUploaded') === 'true') {
+                sessionStorage.removeItem('justUploaded');
+                setTimeout(() => showToast('Upload berhasil! 🎉', false), 1500);
+            }
+
+            // Cek apakah baru edit (setelah reload)
+            if (sessionStorage.getItem('justEdited') === 'true') {
+                sessionStorage.removeItem('justEdited');
+                setTimeout(() => showToast('Deskripsi diupdate! ✨', false), 1500);
+            }
+
+            // Cek apakah baru delete (setelah reload)
+            if (sessionStorage.getItem('justDeleted') === 'true') {
+                sessionStorage.removeItem('justDeleted');
+                setTimeout(() => showToast('Berhasil dihapus! 🗑️', false), 1500);
+            }
+
             checkSessionAndRender();
         });
 
@@ -954,9 +956,6 @@
             console.log('AUTH EVENT:', event, !!session);
             isAdmin = !!session;
             updateAuthUI();
-            if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                fetchKarya();
-            }
         });
     </script>
 </body>
