@@ -133,6 +133,13 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.75; }
         }
+        .action-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .project-card:hover .action-btn {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="min-h-screen font-sans antialiased selection:bg-indigo-500 selection:text-white">
@@ -223,7 +230,7 @@
                         <svg class="w-6 h-6 text-white group-hover:text-indigo-300 transition-colors" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                             <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.69-3.87-1.35-3.87-1.35-.53-1.34-1.28-1.7-1.28-1.7-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.47.11-3.06 0 0 .96-.31 3.15 1.18A10.9 10.9 0 0 1 12 5.35c.97 0 1.94.13 2.85.38 2.18-1.49 3.14-1.18 3.14-1.18.62 1.59.23 2.77.11 3.06.73.81 1.18 1.84 1.18 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.07.78 2.16v3.2c0 .31.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
                         </svg>
-</span>
+                    </span>
                     <div class="text-left">
                         <p class="font-semibold text-sm sm:text-base">GitHub Profile</p>
                         <p class="text-xs text-slate-500 group-hover:text-slate-400 transition-colors">Check out my repositories</p>
@@ -389,74 +396,33 @@
 
         lucide.createIcons();
 
-        // Nampilin/nyembunyiin tombol shield + adminControls bareng-bareng
-        // berdasarkan status login. Sebelumnya tombol shield ini di luar
-        // #adminControls jadi ga ikut kesembunyiin walau udah login.
+        // ==================== UI HELPERS ====================
         function updateAuthUI() {
-            document.getElementById('adminControls').style.display = isAdmin ? 'flex' : 'none';
-            document.getElementById('shieldBtn').style.display = isAdmin ? 'none' : 'flex';
+            const adminControls = document.getElementById('adminControls');
+            const shieldBtn = document.getElementById('shieldBtn');
+            
+            if (isAdmin) {
+                adminControls.style.display = 'flex';
+                shieldBtn.style.display = 'none';
+            } else {
+                adminControls.style.display = 'none';
+                shieldBtn.style.display = 'flex';
+            }
         }
 
-        // ==================== ON LOAD ====================
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loadingScreen').style.opacity = '0';
-                setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 500);
-                document.querySelectorAll('.animate-fade-in, .animate-fade-in-up').forEach(el => el.style.opacity = '1');
-            }, 1000);
-
-            // Cek apakah baru login (setelah reload)
-            if (sessionStorage.getItem('justLoggedIn') === 'true') {
-                sessionStorage.removeItem('justLoggedIn');
-                setTimeout(() => showToast('Login berhasil! 🎉', false), 1500);
-            }
-
-            // Cek apakah login baru gagal (setelah reload)
-            if (sessionStorage.getItem('loginFailed') === 'true') {
-                const safeMessage = sessionStorage.getItem('loginFailedMessage') || 'Email atau password salah.';
-                sessionStorage.removeItem('loginFailed');
-                sessionStorage.removeItem('loginFailedMessage');
-                setTimeout(() => showToast(`Login gagal: ${safeMessage}`, true), 1500);
-            }
-
-            // Cek apakah baru upload (setelah reload)
-            if (sessionStorage.getItem('justUploaded') === 'true') {
-                sessionStorage.removeItem('justUploaded');
-                setTimeout(() => showToast('Upload berhasil! 🎉', false), 1500);
-            }
-
-            // Cek apakah baru edit (setelah reload)
-            if (sessionStorage.getItem('justEdited') === 'true') {
-                sessionStorage.removeItem('justEdited');
-                setTimeout(() => showToast('Deskripsi diupdate! ✨', false), 1500);
-            }
-
-            // Cek apakah baru delete (setelah reload)
-            if (sessionStorage.getItem('justDeleted') === 'true') {
-                sessionStorage.removeItem('justDeleted');
-                setTimeout(() => showToast('Berhasil dihapus! 🗑️', false), 1500);
-            }
-
-            checkSessionAndRender();
-        });
-
-        // ==================== AUTH STATE - BODO & CEPAT ====================
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            console.log('AUTH EVENT:', event, !!session);
-            isAdmin = !!session;
-            updateAuthUI();
-        });
-
-        // ==================== UI HELPERS ====================
-        function showToast(msg, isError) {
+        function showToast(msg, isError = false) {
             const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
             const icon = toast.querySelector('i');
-            document.getElementById('toastMessage').textContent = msg;
+            
+            toastMessage.textContent = msg;
             icon.setAttribute('data-lucide', isError ? 'x-circle' : 'check-circle');
             icon.className = 'w-4 h-4 ' + (isError ? 'text-rose-400' : 'text-emerald-400');
             lucide.createIcons();
+            
             toast.style.transform = 'translateY(0)';
             toast.style.opacity = '1';
+            
             clearTimeout(toast._timeout);
             toast._timeout = setTimeout(() => {
                 toast.style.transform = 'translateY(20px)';
@@ -468,6 +434,7 @@
             const modal = document.getElementById(id);
             if (modal) modal.style.display = 'flex';
         }
+
         function hideModal(id) {
             const modal = document.getElementById(id);
             if (modal) modal.style.display = 'none';
@@ -481,7 +448,7 @@
         }
 
         function escapeAttribute(str) {
-            return escapeHTML(str).replace(/'/g, '&#39;').replace(/`/g, '&#96;');
+            return escapeHTML(str).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
         }
 
         function getSafeFileUrl(url) {
@@ -514,35 +481,36 @@
             const m = document.getElementById('authModal');
             m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
         }
+
         function openUploadModal() {
             const m = document.getElementById('uploadModal');
             m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
         }
+
         function openDeleteModal(id, fileName) {
             deleteTargetId = id;
             deleteTargetFileName = fileName;
             showModal('deleteModal');
         }
+
         function closeDeleteModal() {
             deleteTargetId = null;
             deleteTargetFileName = null;
             hideModal('deleteModal');
         }
+
         function openEditModal(id, title, description) {
             document.getElementById('editKaryaId').value = id;
             document.getElementById('editKaryaTitle').value = title;
             document.getElementById('editKaryaDescription').value = description || '';
             showModal('editModal');
         }
-        function closeEditModal() { hideModal('editModal'); }
+
+        function closeEditModal() {
+            hideModal('editModal');
+        }
 
         // ==================== DESCRIPTION FORMATTING ====================
-        // Deskripsi project tetap 1 field teks bebas (tidak ada perubahan skema data).
-        // Fungsi ini hanya memformat TAMPILANNYA: baris yang diawali emoji/simbol
-        // (contoh: "📡 UDP Discovery") dikenali sebagai item fitur. Kalau ada
-        // 4 baris fitur berturut-turut atau lebih, dirender sebagai grid 2 kolom
-        // di desktop (otomatis balik 1 kolom di mobile). Baris lain (judul,
-        // deskripsi umum, dsb) tetap tampil apa adanya seperti sebelumnya.
         function isBulletLine(text) {
             if (!text) return false;
             if (/^[-*•▪●➤✔✓]\s+/.test(text)) return true;
@@ -567,6 +535,7 @@
                     textBuffer = [];
                 }
             };
+            
             const flushBullets = () => {
                 if (bulletBuffer.length) {
                     blocks.push({ type: 'bullets', items: bulletBuffer });
@@ -588,6 +557,7 @@
                     textBuffer.push(line);
                 }
             });
+            
             flushText();
             flushBullets();
 
@@ -614,8 +584,9 @@
         }
 
         // ==================== RENDER KARYA ====================
-        function renderKarya(data, isSearching) {
+        function renderKarya(data, isSearching = false) {
             const container = document.getElementById('karyaList');
+            
             if (!data || data.length === 0) {
                 const emptyMsg = isSearching
                     ? 'Ga ada project yang cocok dengan pencarian kamu.'
@@ -625,14 +596,14 @@
             }
 
             let html = '';
+            
             data.forEach(item => {
                 const fileName = getPublicFileName(item.file_url);
-                const safeFileUrl = escapeAttribute(getSafeFileUrl(item.file_url));
+                const safeFileUrl = getSafeFileUrl(item.file_url);
                 const hasDescription = item.description && item.description.trim() !== '';
                 const safeTitle = escapeHTML(item.title);
-                const safeJsTitle = escapeAttribute(JSON.stringify(item.title || ''));
-                const safeJsDesc = escapeAttribute(JSON.stringify(item.description || ''));
-                const safeJsFileName = escapeAttribute(JSON.stringify(fileName));
+                const safeDescription = escapeAttribute(item.description || '');
+                const safeFileName = escapeAttribute(fileName);
                 const safeId = Number(item.id);
 
                 html += `
@@ -641,13 +612,13 @@
                         <h4 class="text-[15px] font-semibold text-slate-200 break-words flex-1 leading-snug">${safeTitle}</h4>
                         ${isAdmin ? `
                         <div class="flex items-center gap-1 shrink-0">
-                            <button onclick="event.stopPropagation(); openEditModal(${safeId}, ${safeJsTitle}, ${safeJsDesc})"
-                                    class="edit-btn w-7 h-7 rounded-lg bg-amber-600/20 hover:bg-amber-600/60 text-amber-400 hover:text-amber-200 transition opacity-0 group-hover:opacity-100 flex items-center justify-center"
+                            <button onclick="openEditModal(${safeId}, '${safeTitle.replace(/'/g, "\\'")}', '${safeDescription.replace(/'/g, "\\'")}')"
+                                    class="edit-btn action-btn w-7 h-7 rounded-lg bg-amber-600/20 hover:bg-amber-600/60 text-amber-400 hover:text-amber-200 transition flex items-center justify-center"
                                     title="Edit deskripsi">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                             </button>
-                            <button onclick="event.stopPropagation(); openDeleteModal(${safeId}, ${safeJsFileName})"
-                                    class="delete-btn w-7 h-7 rounded-lg bg-rose-600/20 hover:bg-rose-600/60 text-rose-400 hover:text-rose-200 transition opacity-0 group-hover:opacity-100 flex items-center justify-center"
+                            <button onclick="openDeleteModal(${safeId}, '${safeFileName.replace(/'/g, "\\'")}')"
+                                    class="delete-btn action-btn w-7 h-7 rounded-lg bg-rose-600/20 hover:bg-rose-600/60 text-rose-400 hover:text-rose-200 transition flex items-center justify-center"
                                     title="Hapus karya">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                             </button>
@@ -661,7 +632,7 @@
                     </div>
                     ` : (isAdmin ? `
                     <div class="mb-4">
-                        <p class="text-[13px] text-slate-600 italic">Belum ada deskripsi. <span class="text-amber-400 cursor-pointer hover:underline" onclick="event.stopPropagation(); openEditModal(${safeId}, ${safeJsTitle}, '')">Tambah sekarang</span></p>
+                        <p class="text-[13px] text-slate-600 italic">Belum ada deskripsi. <span class="text-amber-400 cursor-pointer hover:underline" onclick="openEditModal(${safeId}, '${safeTitle.replace(/'/g, "\\'")}', '')">Tambah sekarang</span></p>
                     </div>
                     ` : '')}
 
@@ -687,7 +658,11 @@
                     .select('*')
                     .order('created_at', { ascending: false });
 
-                if (error) { container.innerHTML = '<p class="text-xs text-rose-400 text-center py-2">Gagal memuat</p>'; return; }
+                if (error) {
+                    container.innerHTML = '<p class="text-xs text-rose-400 text-center py-2">Gagal memuat</p>';
+                    return;
+                }
+                
                 allKarya = data || [];
                 applyKaryaSearch();
             } catch (err) {
@@ -701,7 +676,9 @@
             const clearBtn = document.getElementById('clearSearchBtn');
             const keyword = (searchInput ? searchInput.value : '').trim().toLowerCase();
 
-            clearBtn.style.display = keyword ? 'flex' : 'none';
+            if (clearBtn) {
+                clearBtn.style.display = keyword ? 'flex' : 'none';
+            }
 
             if (!keyword) {
                 renderKarya(allKarya, false);
@@ -723,8 +700,10 @@
 
         function clearKaryaSearch() {
             const searchInput = document.getElementById('karyaSearch');
-            searchInput.value = '';
-            searchInput.focus();
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.focus();
+            }
             applyKaryaSearch();
         }
 
@@ -752,27 +731,29 @@
                 const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
                 if (error) {
-                    sessionStorage.setItem('loginFailed', 'true');
-                    sessionStorage.setItem('loginFailedMessage', getLoginFailedMessage(error));
+                    showToast('Login gagal: ' + error.message, true);
                     btn.textContent = 'Masuk';
                     btn.disabled = false;
                     isProcessing = false;
-                    window.location.reload();
                     return false;
                 }
 
-                // ⚡ EKSTRIM: Simpan state & reload halaman
-                sessionStorage.setItem('justLoggedIn', 'true');
-                window.location.reload();
-
-                return false;
-            } catch (err) {
-                sessionStorage.setItem('loginFailed', 'true');
-                sessionStorage.setItem('loginFailedMessage', getLoginFailedMessage(err));
+                showToast('Login berhasil! 🎉', false);
+                toggleAuthModal();
+                isAdmin = true;
+                updateAuthUI();
+                await fetchKarya();
+                
                 btn.textContent = 'Masuk';
                 btn.disabled = false;
                 isProcessing = false;
-                window.location.reload();
+                
+                return false;
+            } catch (err) {
+                showToast('Error: ' + err.message, true);
+                btn.textContent = 'Masuk';
+                btn.disabled = false;
+                isProcessing = false;
             }
 
             return false;
@@ -780,8 +761,10 @@
 
         async function handleLogout() {
             await supabaseClient.auth.signOut();
-            sessionStorage.removeItem('justLoggedIn');
-            window.location.reload();
+            isAdmin = false;
+            updateAuthUI();
+            await fetchKarya();
+            showToast('Logout berhasil!', false);
         }
 
         // ==================== CRUD ====================
@@ -811,10 +794,14 @@
                     return false;
                 }
 
-                // ⚡ EKSTRIM: Simpan state & reload
-                sessionStorage.setItem('justEdited', 'true');
-                window.location.reload();
-
+                showToast('Deskripsi diupdate! ✨', false);
+                closeEditModal();
+                await fetchKarya();
+                
+                btn.textContent = 'Simpan Perubahan';
+                btn.disabled = false;
+                isProcessing = false;
+                
                 return false;
             } catch (err) {
                 showToast('Error: ' + err.message, true);
@@ -835,13 +822,30 @@
             btn.disabled = true;
 
             try {
-                await supabaseClient.storage.from('karya-pram').remove([deleteTargetFileName]);
-                const { error: dbError } = await supabaseClient.from('karya').delete().eq('id', deleteTargetId);
+                // Hapus file dari storage
+                const { error: storageError } = await supabaseClient.storage
+                    .from('karya-pram')
+                    .remove([deleteTargetFileName]);
+                
+                if (storageError) {
+                    console.warn('Storage delete warning:', storageError);
+                }
+
+                // Hapus dari database
+                const { error: dbError } = await supabaseClient
+                    .from('karya')
+                    .delete()
+                    .eq('id', deleteTargetId);
+                
                 if (dbError) throw dbError;
 
-                // ⚡ EKSTRIM: Simpan state & reload
-                sessionStorage.setItem('justDeleted', 'true');
-                window.location.reload();
+                showToast('Berhasil dihapus! 🗑️', false);
+                closeDeleteModal();
+                await fetchKarya();
+                
+                btn.textContent = 'Hapus';
+                btn.disabled = false;
+                isProcessing = false;
             } catch (err) {
                 showToast('Gagal: ' + err.message, true);
                 btn.textContent = 'Hapus';
@@ -898,10 +902,15 @@
                     return false;
                 }
 
-                // ⚡ EKSTRIM: Simpan state & reload
-                sessionStorage.setItem('justUploaded', 'true');
-                window.location.reload();
-
+                showToast('Upload berhasil! 🎉', false);
+                openUploadModal(); // Close modal
+                document.getElementById('uploadForm').reset();
+                await fetchKarya();
+                
+                btn.textContent = 'Upload Sekarang';
+                btn.disabled = false;
+                isProcessing = false;
+                
                 return false;
             } catch (err) {
                 showToast('Error: ' + err.message, true);
@@ -914,14 +923,39 @@
         }
 
         // ==================== EVENT LISTENERS ====================
-        document.getElementById('confirmDeleteBtn').addEventListener('click', deleteKarya);
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('confirmDeleteBtn').addEventListener('click', deleteKarya);
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDeleteModal();
+                    closeEditModal();
+                    hideModal('authModal');
+                    hideModal('uploadModal');
+                }
+            });
+        });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeDeleteModal();
-                closeEditModal();
-                hideModal('authModal');
-                hideModal('uploadModal');
+        // ==================== ON LOAD ====================
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                }, 500);
+                document.querySelectorAll('.animate-fade-in, .animate-fade-in-up').forEach(el => el.style.opacity = '1');
+            }, 1000);
+
+            checkSessionAndRender();
+        });
+
+        // ==================== AUTH STATE ====================
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            console.log('AUTH EVENT:', event, !!session);
+            isAdmin = !!session;
+            updateAuthUI();
+            if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                fetchKarya();
             }
         });
     </script>
