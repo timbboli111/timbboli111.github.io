@@ -50,7 +50,6 @@
                 linear-gradient(180deg, #10182c 0%, #0b1220 42%, #05070f 100%);
             position: relative;
         }
-        /* soft vignette to frame the content and add depth */
         body::before {
             content: '';
             position: fixed;
@@ -61,7 +60,6 @@
             background-size: 56px 56px;
             mask-image: radial-gradient(circle at center, black, transparent 76%);
         }
-        /* subtle film-grain texture for a premium, non-flat finish */
         body::after {
             content: '';
             position: fixed;
@@ -134,10 +132,12 @@
             50% { opacity: 0.75; }
         }
         .action-btn {
-            opacity: 0;
-            transition: opacity 0.2s ease;
+            opacity: 1;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            pointer-events: auto;
         }
-        .project-card:hover .action-btn {
+        .action-btn:hover {
             opacity: 1;
         }
     </style>
@@ -200,7 +200,6 @@
                     <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> Available for collaboration</span>
                 </div>
 
-                <!-- Contact Email Card dengan Logo dan Kata-Kata Profesional -->
                 <div class="mt-4 mb-2 flex justify-center">
                     <a href="mailto:timbboli111@gmail.com" 
                        class="email-card inline-flex items-center gap-4 px-6 py-3.5 rounded-2xl border border-slate-700/60 bg-slate-900/40 backdrop-blur-md hover:bg-slate-900/60 transition-all duration-300 group cursor-pointer"
@@ -283,7 +282,6 @@
             </div>
         </div>
 
-        <!-- Footer dengan Email & Logo Tambahan -->
         <div class="w-full max-w-xl mx-auto text-center mt-2 animate-fade-in" style="animation-delay: 0.8s; opacity: 0;">
             <div class="inline-flex items-center gap-2 text-xs text-slate-500">
                 <i data-lucide="copyright" class="w-3 h-3"></i>
@@ -447,10 +445,6 @@
             return div.innerHTML;
         }
 
-        function escapeAttribute(str) {
-            return escapeHTML(str).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
-        }
-
         function getSafeFileUrl(url) {
             try {
                 const parsedUrl = new URL(url, window.location.href);
@@ -602,9 +596,15 @@
                 const safeFileUrl = getSafeFileUrl(item.file_url);
                 const hasDescription = item.description && item.description.trim() !== '';
                 const safeTitle = escapeHTML(item.title);
-                const safeDescription = escapeAttribute(item.description || '');
-                const safeFileName = escapeAttribute(fileName);
                 const safeId = Number(item.id);
+
+                // Simpan data ke global untuk akses cepat
+                window[`karya_${safeId}`] = {
+                    id: safeId,
+                    title: item.title,
+                    description: item.description || '',
+                    fileName: fileName
+                };
 
                 html += `
                 <div class="project-card p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition-all duration-300 group">
@@ -612,12 +612,12 @@
                         <h4 class="text-[15px] font-semibold text-slate-200 break-words flex-1 leading-snug">${safeTitle}</h4>
                         ${isAdmin ? `
                         <div class="flex items-center gap-1 shrink-0">
-                            <button onclick="openEditModal(${safeId}, '${safeTitle.replace(/'/g, "\\'")}', '${safeDescription.replace(/'/g, "\\'")}')"
+                            <button onclick="editKaryaById(${safeId})"
                                     class="edit-btn action-btn w-7 h-7 rounded-lg bg-amber-600/20 hover:bg-amber-600/60 text-amber-400 hover:text-amber-200 transition flex items-center justify-center"
                                     title="Edit deskripsi">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                             </button>
-                            <button onclick="openDeleteModal(${safeId}, '${safeFileName.replace(/'/g, "\\'")}')"
+                            <button onclick="deleteKaryaById(${safeId})"
                                     class="delete-btn action-btn w-7 h-7 rounded-lg bg-rose-600/20 hover:bg-rose-600/60 text-rose-400 hover:text-rose-200 transition flex items-center justify-center"
                                     title="Hapus karya">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
@@ -632,7 +632,7 @@
                     </div>
                     ` : (isAdmin ? `
                     <div class="mb-4">
-                        <p class="text-[13px] text-slate-600 italic">Belum ada deskripsi. <span class="text-amber-400 cursor-pointer hover:underline" onclick="openEditModal(${safeId}, '${safeTitle.replace(/'/g, "\\'")}', '')">Tambah sekarang</span></p>
+                        <p class="text-[13px] text-slate-600 italic">Belum ada deskripsi. <span class="text-amber-400 cursor-pointer hover:underline" onclick="editKaryaById(${safeId})">Tambah sekarang</span></p>
                     </div>
                     ` : '')}
 
@@ -646,6 +646,21 @@
 
             container.innerHTML = html;
             lucide.createIcons();
+        }
+
+        // Fungsi global untuk edit dan delete
+        function editKaryaById(id) {
+            const data = window[`karya_${id}`];
+            if (data) {
+                openEditModal(data.id, data.title, data.description);
+            }
+        }
+
+        function deleteKaryaById(id) {
+            const data = window[`karya_${id}`];
+            if (data) {
+                openDeleteModal(data.id, data.fileName);
+            }
         }
 
         async function fetchKarya() {
@@ -740,7 +755,6 @@
                     return false;
                 }
 
-                // ⚡ EKSTRIM: Simpan state & reload halaman
                 sessionStorage.setItem('justLoggedIn', 'true');
                 window.location.reload();
 
@@ -790,7 +804,6 @@
                     return false;
                 }
 
-                // ⚡ EKSTRIM: Simpan state & reload
                 sessionStorage.setItem('justEdited', 'true');
                 window.location.reload();
 
@@ -818,7 +831,6 @@
                 const { error: dbError } = await supabaseClient.from('karya').delete().eq('id', deleteTargetId);
                 if (dbError) throw dbError;
 
-                // ⚡ EKSTRIM: Simpan state & reload
                 sessionStorage.setItem('justDeleted', 'true');
                 window.location.reload();
             } catch (err) {
@@ -877,7 +889,6 @@
                     return false;
                 }
 
-                // ⚡ EKSTRIM: Simpan state & reload
                 sessionStorage.setItem('justUploaded', 'true');
                 window.location.reload();
 
@@ -916,13 +927,11 @@
                 document.querySelectorAll('.animate-fade-in, .animate-fade-in-up').forEach(el => el.style.opacity = '1');
             }, 1000);
 
-            // Cek apakah baru login (setelah reload)
             if (sessionStorage.getItem('justLoggedIn') === 'true') {
                 sessionStorage.removeItem('justLoggedIn');
                 setTimeout(() => showToast('Login berhasil! 🎉', false), 1500);
             }
 
-            // Cek apakah login baru gagal (setelah reload)
             if (sessionStorage.getItem('loginFailed') === 'true') {
                 const safeMessage = sessionStorage.getItem('loginFailedMessage') || 'Email atau password salah.';
                 sessionStorage.removeItem('loginFailed');
@@ -930,19 +939,16 @@
                 setTimeout(() => showToast(`Login gagal: ${safeMessage}`, true), 1500);
             }
 
-            // Cek apakah baru upload (setelah reload)
             if (sessionStorage.getItem('justUploaded') === 'true') {
                 sessionStorage.removeItem('justUploaded');
                 setTimeout(() => showToast('Upload berhasil! 🎉', false), 1500);
             }
 
-            // Cek apakah baru edit (setelah reload)
             if (sessionStorage.getItem('justEdited') === 'true') {
                 sessionStorage.removeItem('justEdited');
                 setTimeout(() => showToast('Deskripsi diupdate! ✨', false), 1500);
             }
 
-            // Cek apakah baru delete (setelah reload)
             if (sessionStorage.getItem('justDeleted') === 'true') {
                 sessionStorage.removeItem('justDeleted');
                 setTimeout(() => showToast('Berhasil dihapus! 🗑️', false), 1500);
