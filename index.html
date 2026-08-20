@@ -333,6 +333,19 @@
                     <input type="file" id="karyaFile" required class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer">
                 </div>
                 <button type="submit" id="uploadBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 rounded-xl text-sm transition">Upload Sekarang</button>
+
+                <div id="uploadProgress" style="display:none;" class="space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-400 flex items-center gap-1.5">
+                            <i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i>
+                            <span id="uploadProgressStatus">Uploading...</span>
+                        </span>
+                        <span class="text-indigo-300 font-mono font-semibold" id="uploadProgressPercent">0%</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="uploadProgressBar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-200" style="width: 0%;"></div>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -470,6 +483,70 @@
             return 'Email atau password salah.';
         }
 
+        // ==================== UPLOAD PROGRESS HELPERS ====================
+        function showUploadProgress() {
+            const el = document.getElementById('uploadProgress');
+            if (el) {
+                el.style.display = 'block';
+                updateUploadProgress(0, 'Uploading...');
+            }
+        }
+
+        function hideUploadProgress() {
+            const el = document.getElementById('uploadProgress');
+            if (el) el.style.display = 'none';
+        }
+
+        function updateUploadProgress(percent, status) {
+            const clamped = Math.min(100, Math.max(0, percent));
+            const bar = document.getElementById('uploadProgressBar');
+            const percentEl = document.getElementById('uploadProgressPercent');
+            const statusEl = document.getElementById('uploadProgressStatus');
+            if (bar) bar.style.width = clamped + '%';
+            if (percentEl) percentEl.textContent = clamped + '%';
+            if (statusEl && status) statusEl.textContent = status;
+        }
+
+        async function uploadFileWithProgress(file, fileName, onProgress) {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            const accessToken = session?.access_token || SUPABASE_ANON_KEY;
+
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                const uploadUrl = `${SUPABASE_URL}/storage/v1/object/karya-pram/${encodeURIComponent(fileName)}`;
+
+                xhr.open('POST', uploadUrl);
+                xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+                xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+                xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable && e.total > 0) {
+                        onProgress(Math.round((e.loaded / e.total) * 100));
+                    }
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        onProgress(100);
+                        resolve();
+                    } else {
+                        let errorMsg = `Upload gagal (${xhr.status})`;
+                        try {
+                            const res = JSON.parse(xhr.responseText);
+                            errorMsg = res.message || res.error || errorMsg;
+                        } catch (_) {}
+                        reject(new Error(errorMsg));
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Kesalahan jaringan saat upload'));
+                xhr.ontimeout = () => reject(new Error('Upload timeout'));
+
+                xhr.send(file);
+            });
+        }
+
         // ==================== MODAL CONTROLS ====================
         function toggleAuthModal() {
             const m = document.getElementById('authModal');
@@ -478,7 +555,11 @@
 
         function openUploadModal() {
             const m = document.getElementById('uploadModal');
-            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+            const willShow = m.style.display !== 'flex';
+            m.style.display = willShow ? 'flex' : 'none';
+            if (willShow) {
+                hideUploadProgress();
+            }
         }
 
         function openDeleteModal(id, fileName) {
@@ -547,7 +628,9 @@
                     flushText();
                     bulletBuffer.push(trimmed);
                 } else {
-                    flushBullets();
+                    if (trimmed) {
+                        flushBullets();
+                    }
                     textBuffer.push(line);
                 }
             });
@@ -857,21 +940,14 @@
             isProcessing = true;
             btn.textContent = 'Mengunggah...';
             btn.disabled = true;
+            showUploadProgress();
 
             try {
                 const fileName = `${Date.now()}_${file.name}`;
 
-                const { error: uploadError } = await supabaseClient.storage
-                    .from('karya-pram')
-                    .upload(fileName, file);
-
-                if (uploadError) {
-                    showToast('Upload gagal: ' + uploadError.message, true);
-                    btn.textContent = 'Upload Sekarang';
-                    btn.disabled = false;
-                    isProcessing = false;
-                    return false;
-                }
+                await uploadFileWithProgress(file, fileName, (percent) => {
+                    updateUploadProgress(percent, percent < 100 ? 'Uploading...' : 'Menyimpan...');
+                });
 
                 const { data: { publicUrl } } = supabaseClient.storage
                     .from('karya-pram')
@@ -886,11 +962,13 @@
                     btn.textContent = 'Upload Sekarang';
                     btn.disabled = false;
                     isProcessing = false;
+                    hideUploadProgress();
                     return false;
                 }
 
+                updateUploadProgress(100, 'Selesai!');
                 sessionStorage.setItem('justUploaded', 'true');
-                window.location.reload();
+                setTimeout(() => window.location.reload(), 600);
 
                 return false;
             } catch (err) {
@@ -898,6 +976,7 @@
                 btn.textContent = 'Upload Sekarang';
                 btn.disabled = false;
                 isProcessing = false;
+                hideUploadProgress();
             }
 
             return false;
